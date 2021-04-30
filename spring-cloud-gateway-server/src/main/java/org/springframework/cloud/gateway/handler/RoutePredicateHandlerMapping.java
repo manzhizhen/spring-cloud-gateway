@@ -99,7 +99,12 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 					Route route = map.get(customizeRouteDefinitionId);
 					// Here, it is guaranteed that if the adaptation fails, the general
 					// routing parsing logic will still be used
-					return route != null ? Mono.just(route) : routeMatch(exchange);
+					if (route != null) {
+						exchange.getAttributes().put(GATEWAY_ROUTE_ATTR, route);
+						return Mono.just(webHandler);
+					} else {
+						return routeMatch(exchange);
+					}
 				});
 			}
 		}
