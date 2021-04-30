@@ -30,7 +30,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.reactive.handler.AbstractHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 
-import static org.springframework.cloud.gateway.handler.AbstractCustomizeRouteResolveHandlerMapping.CUSTOMIZE_ROUTE_DEFINITION_ID_KEY;
+import static org.springframework.cloud.gateway.handler.CustomizeRouteIdResolveHandlerMapping.CUSTOMIZE_ROUTE_DEFINITION_ID_KEY;
 import static org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping.ManagementPortType.DIFFERENT;
 import static org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping.ManagementPortType.DISABLED;
 import static org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping.ManagementPortType.SAME;
@@ -52,7 +52,7 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 	private final ManagementPortType managementPortType;
 
 	public RoutePredicateHandlerMapping(FilteringWebHandler webHandler, RouteLocator routeLocator,
-			GlobalCorsProperties globalCorsProperties, Environment environment) {
+										GlobalCorsProperties globalCorsProperties, Environment environment) {
 		this.webHandler = webHandler;
 		this.routeLocator = routeLocator;
 
@@ -85,16 +85,13 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 		exchange.getAttributes().put(GATEWAY_HANDLER_MAPPER_ATTR, getSimpleName());
 
 		/**
-		 * A key factor in the speed of custom route resolution is that it can transform
-		 * the official complex and powerful route resolution ability into a simple
-		 * HashMap.get(routeid) operation. If we cache thousands of route rules, this
-		 * method will shorten the time we spend on route resolution and adaptation by
-		 * several times
+		 * A key factor in the speed of custom route resolution is that it can transform the official complex and powerful route resolution ability into a simple HashMap.get(routeid) operation.
+		 * If we cache thousands of route rules, this method will shorten the time we spend on route resolution and adaptation by several times
 		 */
 		String customizeRouteDefinitionId = exchange.getAttribute(CUSTOMIZE_ROUTE_DEFINITION_ID_KEY);
 		if (customizeRouteDefinitionId != null) {
 			Flux<Map<String, Route>> customRouteMap = this.routeLocator.getRouteMap();
-			if(customRouteMap != null) {
+			if (customRouteMap != null) {
 				return customRouteMap.next().flatMap(map -> {
 					Route route = map.get(customizeRouteDefinitionId);
 					// Here, it is guaranteed that if the adaptation fails, the general
@@ -187,7 +184,8 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 	 * <p>
 	 * The default implementation is empty. Can be overridden in subclasses, for example
 	 * to enforce specific preconditions expressed in URL mappings.
-	 * @param route the Route object to validate
+	 *
+	 * @param route    the Route object to validate
 	 * @param exchange current exchange
 	 * @throws Exception if validation failed
 	 */
