@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.gateway.route;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import reactor.core.publisher.Flux;
@@ -29,7 +30,7 @@ public interface RouteLocator {
 	Flux<Route> getRoutes();
 
 	default Flux<Map<String, Route>> getRouteMap() {
-		return Flux.empty();
+		return null;
 	}
 
 }

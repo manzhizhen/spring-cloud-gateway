@@ -105,14 +105,13 @@ public class CustomizeRouteResolveHandlerMappingTest extends BaseWebClientTests 
 
 		@Bean
 		RouteLocator testRouteLocator(RouteLocatorBuilder builder) {
-			return builder.routes()
-					.route("openapi.trade-order.create#1.0.0",
-							r -> r.query("apiName","openapi.trade-order.create").and()
-									.query("apiVersion","1.0.0").uri(uri))
-					.route("openapi.trade-order.delete#1.0.0",
-							r -> r.query("apiName","openapi.trade-order.delete").and()
-									.query("apiVersion","1.0.0").uri(uri))
+			return builder.routes().route("openapi.trade-order.create#1.0.0",
+					r -> r.query("apiName", "openapi.trade-order.create").and().query("apiVersion", "1.0.0").uri(uri))
+					.route("openapi.trade-order.delete#1.0.0", r -> r.query("apiName", "openapi.trade-order.delete")
+							.and().query("apiVersion", "1.0.0").uri(uri))
 					.build();
 		}
+
 	}
+
 }

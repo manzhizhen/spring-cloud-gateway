@@ -16,8 +16,10 @@
 
 package org.springframework.cloud.gateway.handler;
 
+import java.util.Map;
 import java.util.function.Function;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.cloud.gateway.config.GlobalCorsProperties;
@@ -83,17 +85,23 @@ public class RoutePredicateHandlerMapping extends AbstractHandlerMapping {
 		exchange.getAttributes().put(GATEWAY_HANDLER_MAPPER_ATTR, getSimpleName());
 
 		/**
-		 * A key factor in the speed of custom route resolution is that it can transform the official complex and powerful route resolution ability into a simple HashMap.get(routeid) operation.
-		 * If we cache thousands of route rules, this method will shorten the time we spend on route resolution and adaptation by several times
+		 * A key factor in the speed of custom route resolution is that it can transform
+		 * the official complex and powerful route resolution ability into a simple
+		 * HashMap.get(routeid) operation. If we cache thousands of route rules, this
+		 * method will shorten the time we spend on route resolution and adaptation by
+		 * several times
 		 */
 		String customizeRouteDefinitionId = exchange.getAttribute(CUSTOMIZE_ROUTE_DEFINITION_ID_KEY);
 		if (customizeRouteDefinitionId != null) {
-			return this.routeLocator.getRouteMap().next().flatMap(map ->
-			{
-				Route route = map.get(customizeRouteDefinitionId);
-				// Here, it is guaranteed that if the adaptation fails, the general routing parsing logic will still be used
-				return route != null ? Mono.just(route) : routeMatch(exchange);
-			}).switchIfEmpty(routeMatch(exchange));
+			Flux<Map<String, Route>> customRouteMap = this.routeLocator.getRouteMap();
+			if(customRouteMap != null) {
+				return customRouteMap.next().flatMap(map -> {
+					Route route = map.get(customizeRouteDefinitionId);
+					// Here, it is guaranteed that if the adaptation fails, the general
+					// routing parsing logic will still be used
+					return route != null ? Mono.just(route) : routeMatch(exchange);
+				});
+			}
 		}
 
 		return routeMatch(exchange);
